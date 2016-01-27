@@ -84,6 +84,41 @@ prompt_context() {
   fi
 }
 
+# SVN
+prompt_svn() {
+
+  local now_directory='pwd'
+  local EXCLUDE_DIRECTORY='/home/returns/work/natc/'
+
+  case ${now_directory} in
+    "${EXCLUDE_DIRECTORY}"* )
+        ;;
+
+    *)
+      if in_svn; then
+
+        local svn_version=`svnversion -n`
+
+        case ${svn_version} in 
+          [0-9]*M )
+            prompt_segment yellow black 
+            ;;
+  
+          [0-9]* )
+            prompt_segment green black 
+            ;;
+        esac
+  
+        local svn_branch_name=$(svn_get_branch_name)
+      
+        echo -n ${svn_branch_name} | sed 's/altibase_//g' | sed 's/_branch//g'
+#echo -n '|'
+#echo -n ${svn_version}
+     fi
+     ;;
+  esac
+}
+
 # Git: branch/detached head, dirty status
 prompt_git() {
 
@@ -164,7 +199,8 @@ prompt_hg() {
 
 # Dir: current working directory
 prompt_dir() {
-  prompt_segment blue black '%~'
+#prompt_segment blue black '%~'
+  prompt_segment blue black '%C'
 }
 
 # Virtualenv: current working virtualenv
@@ -197,8 +233,10 @@ build_prompt() {
   prompt_context
   prompt_dir
   prompt_git
+  prompt_svn
   prompt_hg
   prompt_end
 }
 
 PROMPT='%{%f%b%k%}$(build_prompt) '
+
